@@ -1,0 +1,10 @@
+run("Make Composite");
+Stack.setDisplayMode("color");
+Stack.setChannel(1);
+run("Grays");
+Stack.setChannel(2);
+run("Grays");
+Stack.setChannel(3);
+run("Grays");
+Stack.setDisplayMode("composite");
+run("Stack to RGB");
