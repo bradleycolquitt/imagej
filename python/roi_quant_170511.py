@@ -7,9 +7,12 @@ import sys, os, re, copy
 import ijroi
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
 
+import matplotlib.pyplot as plt
 from scipy import ndimage as ndi
+from skimage.external.tifffile import imread, TiffFile
 from skimage.filters import sobel, gaussian
 from skimage import measure
 from skimage.measure import label
@@ -22,11 +25,11 @@ from skimage.filters import threshold_triangle
 from itertools import compress
 
 def get_resolution(image_fname):
-    im1 = skimage.external.tifffile.TiffFile(image_fname)
+    im1 = TiffFile(image_fname)
     info = im1.info()
     im1.close()
     sel = None
-    for line in a.splitlines():
+    for line in info.splitlines():
         if re.search("voxel_size_x", line):
             sel = float(line.split(":")[1].strip())
     return(sel)
@@ -111,7 +114,7 @@ def process_images(image, image_threshed, image_fname, channel, out_dir):
 
     # Find edges, labels
     print("Labeling image")
-    #edges, fill_image = find_edges(image)
+    edges, fill_image = find_edges(image)
     labels, num_features = label_image(image_threshed)
 
     # Output thresholded images
@@ -162,7 +165,7 @@ def main(argv):
     image_fnames = ["/".join([data_dir, im]) for im in image_fnames]
     print("Number of images to process: %s" % len(image_fnames))
 
-    images = [skimage.external.tifffile.imread(im) for im in image_fnames]
+    images = [imread(im) for im in image_fnames]
 
     out_df = None
     out_dir = "/".join([data_dir, "analysis_threshed"])
@@ -171,10 +174,10 @@ def main(argv):
         os.mkdir(out_dir)
     
     # Loop through channels
-    nchannels = np.shape(images[0])[2]
-    #nchannels = [1,2]
-    for channel in range(nchannels):
-        #for channel in nchannels:
+    #nchannels = np.shape(images[0])[2]
+    nchannels = [1,2]
+    #for channel in range(nchannels):
+    for channel in nchannels:
         print("Channel %s" % channel)
 
         print("Thresholding image group...")
